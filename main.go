@@ -22,18 +22,18 @@ func RenderItem(w io.Writer, item Item) {
 	fmt.Fprintf(w, " %s\n", item.Name)
 }
 
-func RenderList(list []Item) {
-	var buffer bytes.Buffer
+func RenderList(w io.Writer, list []Item) {
 	for i := 0; i < len(list); i++ {
-		RenderItem(&buffer, list[i])
+		RenderItem(w, list[i])
 	}
 }
 
 func main() {
-	list = append(list, Item{Completed: false, Name: "make a list of items"})
+	list = append(list, Item{Completed: true, Name: "make a list of items"})
 	list = append(list, Item{Completed: false, Name: "check an item"})
 	list = append(list, Item{Completed: false, Name: "uncheck an item"})
 	list = append(list, Item{Completed: false, Name: "add a new item"})
 	list = append(list, Item{Completed: false, Name: "remove an item"})
-	RenderList(list)
+	var buffer bytes.Buffer
+	RenderList(&buffer, list)
 }

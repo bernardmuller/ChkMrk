@@ -24,3 +24,39 @@ func TestRenderItem(t *testing.T) {
 		}
 	}
 }
+
+func TestRenderList(t *testing.T) {
+  tests := []struct {
+    items []Item
+    expected string
+  } {
+    {
+			[]Item{
+				{Name: "Task 1", Completed: true},
+				{Name: "Task 2", Completed: false},
+			},
+			"[x] Task 1\n[ ] Task 2\n",
+		},
+		{
+			[]Item{
+				{Name: "Task 3", Completed: false},
+				{Name: "Task 4", Completed: false},
+			},
+			"[ ] Task 3\n[ ] Task 4\n",
+		},
+		{
+			[]Item{}, // Test for an empty list
+			"",
+		},
+  }
+
+  for _, test := range tests {
+		var buffer bytes.Buffer
+		RenderList(&buffer, test.items)
+		actual := buffer.String()
+
+		if actual != test.expected {
+			t.Errorf("RenderItems(%v) = %q; expected %q", test.items, actual, test.expected)
+		}
+	}
+}
