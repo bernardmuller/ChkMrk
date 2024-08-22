@@ -30,10 +30,14 @@ func RenderList(w io.Writer, list []Item) {
 
 func main() {
 	list = append(list, Item{Completed: true, Name: "make a list of items"})
-	list = append(list, Item{Completed: false, Name: "check an item"})
-	list = append(list, Item{Completed: false, Name: "uncheck an item"})
-	list = append(list, Item{Completed: false, Name: "add a new item"})
-	list = append(list, Item{Completed: false, Name: "remove an item"})
+	list = append(list, Item{Completed: true, Name: "test functions that render items"})
+	list = append(list, Item{Completed: false, Name: "parse cli entrypoint without args"})
+	list = append(list, Item{Completed: false, Name: "parse cli entrypoint with args"})
+	list = append(list, Item{Completed: false, Name: "list args"})
+	list = append(list, Item{Completed: false, Name: "test check an item"})
+	list = append(list, Item{Completed: false, Name: "test uncheck an item"})
+	list = append(list, Item{Completed: false, Name: "test add a new item"})
+	list = append(list, Item{Completed: false, Name: "test remove an item"})
 	var buffer bytes.Buffer
 	RenderList(&buffer, list)
 }
