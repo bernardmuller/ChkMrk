@@ -33,12 +33,17 @@ func RenderList(w io.Writer, list []Item) {
 	}
 }
 
+func AddItemToList(list []Item, item Item) []Item {
+	list = append(list, Item{Completed: false, Name: addFlag})
+	return list
+}
+
 func main() {
 	list = append(list, Item{Completed: true, Name: "make a list of items"})
 	list = append(list, Item{Completed: true, Name: "test functions that render items"})
-	list = append(list, Item{Completed: false, Name: "parse cli entrypoint without args"})
-	list = append(list, Item{Completed: false, Name: "parse cli entrypoint with args"})
-	list = append(list, Item{Completed: false, Name: "parse add item flag"})
+	list = append(list, Item{Completed: true, Name: "parse cli entrypoint without args"})
+	list = append(list, Item{Completed: true, Name: "parse cli entrypoint with args"})
+	list = append(list, Item{Completed: true, Name: "parse add item flag"})
 	list = append(list, Item{Completed: false, Name: "parse check item flag"})
 	list = append(list, Item{Completed: false, Name: "parse remove item flag"})
 	list = append(list, Item{Completed: false, Name: "list args"})
@@ -51,12 +56,14 @@ func main() {
 	flag.Parse()
 
 	var buffer bytes.Buffer
-	RenderList(&buffer, list)
 
 	if addFlag == "default" {
+		RenderList(&buffer, list)
 		fmt.Print(buffer.String())
 	} else {
-		fmt.Println("addFlag value is: ", addFlag)
-	}
+		newlist := AddItemToList(list, Item{Completed: false, Name: addFlag})
 
+		RenderList(&buffer, newlist)
+		fmt.Print(buffer.String())
+	}
 }
