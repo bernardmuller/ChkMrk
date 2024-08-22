@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+	"io"
+)
 
 type Item struct {
 	Completed bool
@@ -9,18 +13,19 @@ type Item struct {
 
 var list []Item
 
-func RenderItem(item Item) {
+func RenderItem(w io.Writer, item Item) {
 	if item.Completed {
-		fmt.Print("[x] ")
+		fmt.Fprint(w, "[x]")
 	} else {
-		fmt.Print("[ ] ")
+		fmt.Fprint(w, "[ ]")
 	}
-	fmt.Printf(" %s\n", item.Name)
+	fmt.Fprintf(w, " %s\n", item.Name)
 }
 
 func RenderList(list []Item) {
+	var buffer bytes.Buffer
 	for i := 0; i < len(list); i++ {
-		RenderItem(list[i])
+		RenderItem(&buffer, list[i])
 	}
 }
 
