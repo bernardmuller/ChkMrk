@@ -9,9 +9,18 @@ type Item struct {
 
 var list []Item
 
+func RenderItem(item Item) {
+	if item.Completed {
+		fmt.Print("[x] ")
+	} else {
+		fmt.Print("[ ] ")
+	}
+	fmt.Printf(" %s\n", item.Name)
+}
+
 func RenderList(list []Item) {
 	for i := 0; i < len(list); i++ {
-		fmt.Println(list[i].Name)
+		RenderItem(list[i])
 	}
 }
 
