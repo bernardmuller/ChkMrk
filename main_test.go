@@ -228,3 +228,64 @@ func TestInCompleteItem(t *testing.T) {
 		}
 	}
 }
+
+func TestRemoveItem(t *testing.T) {
+	tests := []struct {
+		items    []Item
+		index    int
+		expected []Item
+	}{
+		{
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: false},
+				{Index: 2, Name: "Task 2", Completed: false},
+			},
+			1,
+			[]Item{
+				{Index: 2, Name: "Task 2", Completed: false},
+			},
+		},
+		{
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 2, Name: "Task 2", Completed: false},
+			},
+			2,
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: true},
+			},
+		},
+		{
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 3, Name: "Task 3", Completed: false},
+			},
+			1,
+			[]Item{
+				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 3, Name: "Task 3", Completed: false},
+			},
+		},
+		{
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 2, Name: "Task 2", Completed: true},
+				{Index: 3, Name: "Task 3", Completed: false},
+			},
+			2,
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 3, Name: "Task 3", Completed: false},
+			},
+		},
+	}
+
+	for index, test := range tests {
+		actual := RemoveItemFromList(test.items, test.index)
+
+		if !reflect.DeepEqual(actual, test.expected) {
+			t.Errorf("Test number %d -> CompleteItem(%v, %v) = %v; expected %v", index, test.items, test.index, actual, test.expected)
+		}
+	}
+}
