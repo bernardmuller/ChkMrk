@@ -39,6 +39,8 @@ func AddItemToList(list []Item, item Item) []Item {
 }
 
 func main() {
+
+	//NOTE: This will probably be saved inside a DB or a MD file
 	list := []Item{
 		{Completed: true, Name: "make a list of items"},
 		{Completed: true, Name: "test functions that render items"},
@@ -53,6 +55,8 @@ func main() {
 		{Completed: false, Name: "test add a new item"},
 		{Completed: false, Name: "test remove an item"},
 	}
+
+	// NOTE: We can probably extract this to a new function
 	flag.StringVar(&addFlag, "a", "default", "help message")
 	flag.Parse()
 
