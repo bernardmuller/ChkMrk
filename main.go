@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"slices"
 )
 
 var (
@@ -58,7 +59,13 @@ func IncompleteItem(list []Item, index int) []Item {
 }
 
 func RemoveItemFromList(list []Item, index int) []Item {
-	list = append(list[:index], list[index+1:]...)
+	var itemSliceIndex int
+	for i := 0; i < len(list); i++ {
+		if list[i].Index == index {
+			itemSliceIndex = i
+		}
+	}
+	list = slices.Delete(list, itemSliceIndex, itemSliceIndex+1)
 	return list
 }
 
