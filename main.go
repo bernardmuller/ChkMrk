@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	addFlag string
+	addFlag   string
+	checkFlag int
 )
 
 type Item struct {
@@ -108,17 +109,33 @@ func main() {
 
 	// NOTE: We can probably extract this to a new function
 	flag.StringVar(&addFlag, "a", "default", "help message")
+	flag.IntVar(&checkFlag, "c", 0, "help message")
 	flag.Parse()
 
 	var buffer bytes.Buffer
 
-	if addFlag == "default" {
-		RenderListInBuffer(&buffer, list)
-		fmt.Print(buffer.String())
-	} else {
+	if addFlag != "default" {
 		newlist := AddItemToList(list, Item{Completed: false, Name: addFlag})
 
 		RenderListInBuffer(&buffer, newlist)
 		fmt.Print(buffer.String())
+	}
+
+	if checkFlag != 0 {
+		item, err := FindItemInList(list, checkFlag)
+
+		if err != nil {
+			fmt.Errorf("Error checking item: %s", err.Error())
+		}
+
+		if !item.Completed {
+			list = CompleteItem(list, item.Index)
+			RenderListInBuffer(&buffer, list)
+			fmt.Print(buffer.String())
+		} else {
+			list = IncompleteItem(list, item.Index)
+			RenderListInBuffer(&buffer, list)
+			fmt.Print(buffer.String())
+		}
 	}
 }
