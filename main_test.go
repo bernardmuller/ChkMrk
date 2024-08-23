@@ -16,7 +16,7 @@ func TestRenderItem(t *testing.T) {
 
 	for _, test := range tests {
 		var buffer bytes.Buffer
-		RenderItem(&buffer, test.item)
+		RenderItemInBuffer(&buffer, test.item)
 		actual := buffer.String()
 
 		if actual != test.expected {
@@ -26,11 +26,11 @@ func TestRenderItem(t *testing.T) {
 }
 
 func TestRenderList(t *testing.T) {
-  tests := []struct {
-    items []Item
-    expected string
-  } {
-    {
+	tests := []struct {
+		items    []Item
+		expected string
+	}{
+		{
 			[]Item{
 				{Name: "Task 1", Completed: true},
 				{Name: "Task 2", Completed: false},
@@ -48,11 +48,11 @@ func TestRenderList(t *testing.T) {
 			[]Item{}, // Test for an empty list
 			"",
 		},
-  }
+	}
 
-  for _, test := range tests {
+	for _, test := range tests {
 		var buffer bytes.Buffer
-		RenderList(&buffer, test.items)
+		RenderListInBuffer(&buffer, test.items)
 		actual := buffer.String()
 
 		if actual != test.expected {
