@@ -13,6 +13,7 @@ var (
 	addFlag    string
 	checkFlag  int
 	removeFlag int
+	listFlag   bool
 )
 
 type Item struct {
@@ -92,7 +93,7 @@ func main() {
 		{Index: 5, Completed: true, Name: "parse add item flag"},
 		{Index: 12, Completed: true, Name: "parse check item flag"},
 		{Index: 11, Completed: true, Name: "parse remove item flag"},
-		{Index: 10, Completed: false, Name: "list args"},
+		{Index: 10, Completed: true, Name: "list args"},
 		{Index: 6, Completed: true, Name: "test check an item"},
 		{Index: 7, Completed: true, Name: "test uncheck an item"},
 		{Index: 8, Completed: true, Name: "test add a new item"},
@@ -112,6 +113,7 @@ func main() {
 	flag.StringVar(&addFlag, "a", "default", "help message")
 	flag.IntVar(&checkFlag, "c", 0, "help message")
 	flag.IntVar(&removeFlag, "r", 0, "help message")
+	flag.BoolVar(&listFlag, "r", true, "help message")
 	flag.Parse()
 
 	var buffer bytes.Buffer
@@ -149,6 +151,11 @@ func main() {
 		}
 
 		list = RemoveItemFromList(list, item.Index)
+		RenderListInBuffer(&buffer, list)
+		fmt.Print(buffer.String())
+	}
+
+	if listFlag {
 		RenderListInBuffer(&buffer, list)
 		fmt.Print(buffer.String())
 	}
