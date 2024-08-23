@@ -57,6 +57,11 @@ func IncompleteItem(list []Item, index int) []Item {
 	return list
 }
 
+func RemoveItemFromList(list []Item, index int) []Item {
+	list = append(list[:index], list[index+1:]...)
+	return list
+}
+
 func main() {
 
 	// NOTE: This will probably be saved inside a DB or a MD file
