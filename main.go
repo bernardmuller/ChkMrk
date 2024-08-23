@@ -34,14 +34,12 @@ func RenderListInBuffer(w io.Writer, list []Item) {
 }
 
 func AddItemToList(list []Item, item Item) []Item {
-	list = append(list, Item{Completed: false, Name: addFlag})
 	list = append(list, item)
 	return list
 }
 
 func main() {
 
-	//NOTE: This will probably be saved inside a DB or a MD file
 	// NOTE: This will probably be saved inside a DB or a MD file
 	list := []Item{
 		{Completed: true, Name: "make a list of items"},
