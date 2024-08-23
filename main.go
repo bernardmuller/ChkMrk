@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -67,6 +68,15 @@ func RemoveItemFromList(list []Item, index int) []Item {
 	}
 	list = slices.Delete(list, itemSliceIndex, itemSliceIndex+1)
 	return list
+}
+
+func FindItemInList(list []Item, index int) (Item, error) {
+	for i := 0; i < len(list); i++ {
+		if list[i].Index == index {
+			return list[i], nil
+		}
+	}
+	return Item{}, errors.New(fmt.Sprintf("Failed to find Item with Index: %d", index))
 }
 
 func main() {

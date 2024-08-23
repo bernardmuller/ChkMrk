@@ -289,3 +289,52 @@ func TestRemoveItem(t *testing.T) {
 		}
 	}
 }
+
+func TestFindItemInList(t *testing.T) {
+	tests := []struct {
+		items    []Item
+		index    int
+		expected Item
+	}{
+		{
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: false},
+				{Index: 2, Name: "Task 2", Completed: false},
+        {Index: 3, Name: "Task 3", Completed: false},
+        {Index: 4, Name: "Task 4", Completed: false},
+        {Index: 5, Name: "Task 5", Completed: false},
+        {Index: 6, Name: "Task 6", Completed: false},
+        {Index: 7, Name: "Task 7", Completed: false},
+        {Index: 8, Name: "Task 8", Completed: false},
+			},
+			3,
+      Item{Index: 3, Name: "Task 3", Completed: false},
+		},
+		{
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: false},
+				{Index: 2, Name: "Task 2", Completed: false},
+        {Index: 3, Name: "Task 3", Completed: false},
+        {Index: 4, Name: "Task 4", Completed: false},
+        {Index: 5, Name: "Task 5", Completed: false},
+        {Index: 6, Name: "Task 6", Completed: false},
+        {Index: 7, Name: "Task 7", Completed: false},
+        {Index: 8, Name: "Task 8", Completed: false},
+			},
+			7,
+      Item{Index:  7, Name: "Task 7", Completed: false},
+		},
+	}
+
+	for index, test := range tests {
+		actual, err := FindItemInList(test.items, test.index)
+
+    if(err != nil) {
+      t.Errorf("Test number %d -> FindItemInList(%v, %v) = %v; expected %v", index, test.items, test.index, actual, test.expected)
+    }
+
+		if !reflect.DeepEqual(actual, test.expected) {
+      t.Errorf("Test number %d -> FindItemInList(%v, %v) = %v; expected %v", index, test.items, test.index, actual, test.expected)
+		}
+	}
+}
