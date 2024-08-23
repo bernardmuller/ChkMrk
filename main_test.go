@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"reflect"
 	"testing"
 )
 
@@ -57,6 +58,42 @@ func TestRenderList(t *testing.T) {
 
 		if actual != test.expected {
 			t.Errorf("RenderItems(%v) = %q; expected %q", test.items, actual, test.expected)
+		}
+	}
+}
+func TestAddItem(t *testing.T) {
+	tests := []struct {
+		list     []Item
+		item     Item
+		expected []Item
+	}{
+		{
+			[]Item{
+				{Name: "Task 1", Completed: true},
+				{Name: "Task 2", Completed: false},
+			},
+			Item{Name: "Task 3", Completed: false},
+			[]Item{
+				{Name: "Task 1", Completed: true},
+				{Name: "Task 2", Completed: false},
+				{Name: "Task 3", Completed: false},
+			},
+		},
+
+		{
+			[]Item{}, // Test for an empty list
+			Item{Name: "Task 1", Completed: false},
+			[]Item{
+				{Name: "Task 1", Completed: false},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		actual := AddItemToList(test.list, test.item)
+ 
+    if !reflect.DeepEqual(actual, test.expected) {
+			t.Errorf("AddItemToList(%v, %v) = %v; expected %v", test.list, test.item, actual, test.expected)
 		}
 	}
 }
