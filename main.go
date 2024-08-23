@@ -107,19 +107,21 @@ func main() {
 		{Index: 19, Completed: false, Name: "parse stdin command in process prompt"},
 		{Index: 20, Completed: false, Name: "map stdin command in process prompt to correct action"},
 		{Index: 21, Completed: false, Name: "save list to .txt file"},
+		{Index: 22, Completed: false, Name: "add identifier to items"},
+		{Index: 23, Completed: false, Name: "add index to render"},
 	}
 
 	// NOTE: We can probably extract this to a new function
 	flag.StringVar(&addFlag, "a", "default", "help message")
 	flag.IntVar(&checkFlag, "c", 0, "help message")
 	flag.IntVar(&removeFlag, "r", 0, "help message")
-	flag.BoolVar(&listFlag, "r", true, "help message")
+	flag.BoolVar(&listFlag, "l", false, "help message")
 	flag.Parse()
 
 	var buffer bytes.Buffer
 
 	if addFlag != "default" {
-		newlist := AddItemToList(list, Item{Completed: false, Name: addFlag})
+		newlist := AddItemToList(list, Item{Index: len(list) + 1, Completed: false, Name: addFlag})
 
 		RenderListInBuffer(&buffer, newlist)
 		fmt.Print(buffer.String())
