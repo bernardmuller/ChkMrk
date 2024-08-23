@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	addFlag   string
-	checkFlag int
+	addFlag    string
+	checkFlag  int
+	removeFlag int
 )
 
 type Item struct {
@@ -89,8 +90,8 @@ func main() {
 		{Index: 3, Completed: true, Name: "parse cli entrypoint without args"},
 		{Index: 4, Completed: true, Name: "parse cli entrypoint with args"},
 		{Index: 5, Completed: true, Name: "parse add item flag"},
-		{Index: 12, Completed: false, Name: "parse check item flag"},
-		{Index: 11, Completed: false, Name: "parse remove item flag"},
+		{Index: 12, Completed: true, Name: "parse check item flag"},
+		{Index: 11, Completed: true, Name: "parse remove item flag"},
 		{Index: 10, Completed: false, Name: "list args"},
 		{Index: 6, Completed: true, Name: "test check an item"},
 		{Index: 7, Completed: true, Name: "test uncheck an item"},
@@ -110,6 +111,7 @@ func main() {
 	// NOTE: We can probably extract this to a new function
 	flag.StringVar(&addFlag, "a", "default", "help message")
 	flag.IntVar(&checkFlag, "c", 0, "help message")
+	flag.IntVar(&removeFlag, "r", 0, "help message")
 	flag.Parse()
 
 	var buffer bytes.Buffer
@@ -137,5 +139,17 @@ func main() {
 			RenderListInBuffer(&buffer, list)
 			fmt.Print(buffer.String())
 		}
+	}
+
+	if removeFlag != 0 {
+		item, err := FindItemInList(list, removeFlag)
+
+		if err != nil {
+			fmt.Errorf("Error checking item: %s", err.Error())
+		}
+
+		list = RemoveItemFromList(list, item.Index)
+		RenderListInBuffer(&buffer, list)
+		fmt.Print(buffer.String())
 	}
 }
