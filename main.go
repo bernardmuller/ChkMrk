@@ -99,7 +99,7 @@ func main() {
 		{Index: 8, Completed: true, Name: "test add a new item"},
 		{Index: 9, Completed: true, Name: "test remove an item"},
 		{Index: 13, Completed: true, Name: "create new item from addFlag arg, and add to list"},
-		{Index: 14, Completed: false, Name: "test create new item from arg, completed should be false, index should be list len plus 1"},
+		{Index: 14, Completed: true, Name: "test create new item from arg, completed should be false, index should be list len plus 1"},
 		{Index: 15, Completed: false, Name: "create cli process loop"},
 		{Index: 16, Completed: false, Name: "render list in process"},
 		{Index: 17, Completed: false, Name: "render action prompt underneath rendered list in process"},
