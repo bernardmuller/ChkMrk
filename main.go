@@ -12,6 +12,7 @@ var (
 )
 
 type Item struct {
+	Index     int
 	Completed bool
 	Name      string
 }
