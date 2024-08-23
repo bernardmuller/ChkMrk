@@ -39,6 +39,15 @@ func AddItemToList(list []Item, item Item) []Item {
 	return list
 }
 
+func CompleteItem(list []Item, index int) []Item {
+	for i := 0; i < len(list); i++ {
+		if list[i].Index == index {
+			list[i].Completed = true
+		}
+	}
+	return list
+}
+
 func main() {
 
 	// NOTE: This will probably be saved inside a DB or a MD file
