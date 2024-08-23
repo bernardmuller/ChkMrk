@@ -48,6 +48,15 @@ func CompleteItem(list []Item, index int) []Item {
 	return list
 }
 
+func IncompleteItem(list []Item, index int) []Item {
+	for i := 0; i < len(list); i++ {
+		if list[i].Index == index {
+			list[i].Completed = false
+		}
+	}
+	return list
+}
+
 func main() {
 
 	// NOTE: This will probably be saved inside a DB or a MD file
