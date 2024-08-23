@@ -11,8 +11,8 @@ func TestRenderItem(t *testing.T) {
 		item     Item
 		expected string
 	}{
-		{Item{Name: "Task 1", Completed: true}, "[x] Task 1\n"},
-		{Item{Name: "Task 2", Completed: false}, "[ ] Task 2\n"},
+		{Item{Index: 1, Name: "Task 1", Completed: true}, "[x] Task 1\n"},
+		{Item{Index: 2, Name: "Task 2", Completed: false}, "[ ] Task 2\n"},
 	}
 
 	for _, test := range tests {
@@ -33,15 +33,15 @@ func TestRenderList(t *testing.T) {
 	}{
 		{
 			[]Item{
-				{Name: "Task 1", Completed: true},
-				{Name: "Task 2", Completed: false},
+				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 2, Name: "Task 2", Completed: false},
 			},
 			"[x] Task 1\n[ ] Task 2\n",
 		},
 		{
 			[]Item{
-				{Name: "Task 3", Completed: false},
-				{Name: "Task 4", Completed: false},
+				{Index: 3, Name: "Task 3", Completed: false},
+				{Index: 4, Name: "Task 4", Completed: false},
 			},
 			"[ ] Task 3\n[ ] Task 4\n",
 		},
@@ -61,6 +61,7 @@ func TestRenderList(t *testing.T) {
 		}
 	}
 }
+
 func TestAddItem(t *testing.T) {
 	tests := []struct {
 		list     []Item
@@ -69,31 +70,96 @@ func TestAddItem(t *testing.T) {
 	}{
 		{
 			[]Item{
-				{Name: "Task 1", Completed: true},
-				{Name: "Task 2", Completed: false},
+				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 2, Name: "Task 2", Completed: false},
 			},
-			Item{Name: "Task 3", Completed: false},
+			Item{Index: 3, Name: "Task 3", Completed: false},
 			[]Item{
-				{Name: "Task 1", Completed: true},
-				{Name: "Task 2", Completed: false},
-				{Name: "Task 3", Completed: false},
+				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 3, Name: "Task 3", Completed: false},
 			},
 		},
 
 		{
 			[]Item{}, // Test for an empty list
-			Item{Name: "Task 1", Completed: false},
+			Item{Index: 1, Name: "Task 1", Completed: false},
 			[]Item{
-				{Name: "Task 1", Completed: false},
+				{Index: 1, Name: "Task 1", Completed: false},
 			},
 		},
 	}
 
 	for _, test := range tests {
 		actual := AddItemToList(test.list, test.item)
- 
-    if !reflect.DeepEqual(actual, test.expected) {
+
+		if !reflect.DeepEqual(actual, test.expected) {
 			t.Errorf("AddItemToList(%v, %v) = %v; expected %v", test.list, test.item, actual, test.expected)
+		}
+	}
+}
+
+func TestCompleteItem(t *testing.T) {
+	tests := []struct {
+		items    []Item
+		index    int
+		expected []Item
+	}{
+		{
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: false},
+				{Index: 2, Name: "Task 2", Completed: false},
+			},
+			1,
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 2, Name: "Task 2", Completed: false},
+			},
+		},
+		{
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 2, Name: "Task 2", Completed: false},
+			},
+			2,
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 2, Name: "Task 2", Completed: true},
+			},
+		},
+		{
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 3, Name: "Task 3", Completed: false},
+			},
+			3,
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 3, Name: "Task 3", Completed: true},
+			},
+		},
+		{
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 3, Name: "Task 3", Completed: false},
+			},
+			1,
+			[]Item{
+				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 3, Name: "Task 3", Completed: false},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		actual := CompleteItem(test.items, test.index)
+
+		if !reflect.DeepEqual(actual, test.expected) {
+			t.Errorf("CompleteItem(%v, %v) = %v; expected %v", test.items, test.index, actual, test.expected)
 		}
 	}
 }
