@@ -69,8 +69,8 @@ func main() {
 		{Completed: false, Name: "parse check item flag"},
 		{Completed: false, Name: "parse remove item flag"},
 		{Completed: false, Name: "list args"},
-		{Completed: false, Name: "test check an item"},
-		{Completed: false, Name: "test uncheck an item"},
+		{Completed: true, Name: "test check an item"},
+		{Completed: true, Name: "test uncheck an item"},
 		{Completed: false, Name: "test add a new item"},
 		{Completed: false, Name: "test remove an item"},
 	}
