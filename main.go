@@ -96,8 +96,7 @@ func initializeDB(db *sql.DB) error {
 	CREATE TABLE IF NOT EXISTS items (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		title TEXT NOT NULL,
-		completed BOOLEAN NOT NULL,
-    index INTEGER NOT NULL
+		completed BOOLEAN NOT NULL
 	);
 	`
 	_, err := db.Exec(query)
