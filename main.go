@@ -25,6 +25,11 @@ type Item struct {
 var list []Item
 
 func RenderItemInBuffer(w io.Writer, item Item) {
+	if item.Index > 9 {
+		fmt.Fprintf(w, "%d. ", item.Index)
+	} else {
+		fmt.Fprintf(w, "%d.  ", item.Index)
+	}
 	if item.Completed {
 		fmt.Fprint(w, "[x]")
 	} else {

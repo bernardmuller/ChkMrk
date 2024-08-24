@@ -11,8 +11,8 @@ func TestRenderItem(t *testing.T) {
 		item     Item
 		expected string
 	}{
-		{Item{Index: 1, Name: "Task 1", Completed: true}, "[x] Task 1\n"},
-		{Item{Index: 2, Name: "Task 2", Completed: false}, "[ ] Task 2\n"},
+		{Item{Index: 1, Name: "Task 1", Completed: true}, "1.  [x] Task 1\n"},
+		{Item{Index: 2, Name: "Task 2", Completed: false}, "2.  [ ] Task 2\n"},
 	}
 
 	for _, test := range tests {
@@ -36,14 +36,14 @@ func TestRenderList(t *testing.T) {
 				{Index: 1, Name: "Task 1", Completed: true},
 				{Index: 2, Name: "Task 2", Completed: false},
 			},
-			"[x] Task 1\n[ ] Task 2\n",
+			"1.  [x] Task 1\n2.  [ ] Task 2\n",
 		},
 		{
 			[]Item{
 				{Index: 3, Name: "Task 3", Completed: false},
 				{Index: 4, Name: "Task 4", Completed: false},
 			},
-			"[ ] Task 3\n[ ] Task 4\n",
+			"3.  [ ] Task 3\n4.  [ ] Task 4\n",
 		},
 		{
 			[]Item{}, // Test for an empty list
