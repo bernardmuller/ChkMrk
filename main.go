@@ -109,6 +109,26 @@ func addItem(db *sql.DB, title string, completed bool) error {
 	return err
 }
 
+func getItems(db *sql.DB) ([]Item, error) {
+	query := `SELECT id, title, completed FROM items`
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []Item
+	for rows.Next() {
+		var item Item
+		err := rows.Scan(&item.ID, &item.Title, &item.Completed)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, nil
+}
+
 func main() {
 
 	db, err := sql.Open("sqlite3", "./checklist.db")
