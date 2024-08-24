@@ -193,6 +193,7 @@ func main() {
 			addItem(db, list[i].Title, list[i].Completed)
 		}
 	}
+
 	// NOTE: We can probably extract this to a new function
 	flag.StringVar(&addFlag, "a", "default", "help message")
 	flag.IntVar(&checkFlag, "c", 0, "help message")
@@ -240,7 +241,11 @@ func main() {
 	}
 
 	if listFlag {
-		RenderListInBuffer(&buffer, list)
+		dbList, err := getItems(db)
+		if err != nil {
+			log.Fatalf("Unable to list items: %s", err)
+		}
+		RenderListInBuffer(&buffer, dbList)
 		fmt.Print(buffer.String())
 	}
 }
