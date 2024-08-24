@@ -2,10 +2,13 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"errors"
 	"flag"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 	"io"
+	"log"
 	"slices"
 )
 
@@ -88,6 +91,17 @@ func FindItemInList(list []Item, index int) (Item, error) {
 }
 
 func main() {
+
+	db, err := sql.Open("sqlite3", "./checklist.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	// Initialize the database schema.
+	if err := initializeDB(db); err != nil {
+		log.Fatal(err)
+	}
 
 	// NOTE: This will probably be saved inside a DB or a MD file
 	list := []Item{
