@@ -92,10 +92,11 @@ func FindItemInList(list []Item, index int) (Item, error) {
 
 func initializeDB(db *sql.DB) error {
 	query := `
-	CREATE TABLE IF NOT EXISTS tasks (
+	CREATE TABLE IF NOT EXISTS items (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		titl/ TEXT NOT NULL,
-		completed BOOLEAN NOT NULL
+		title TEXT NOT NULL,
+		completed BOOLEAN NOT NULL,
+    index INTEGER NOT NULL
 	);
 	`
 	_, err := db.Exec(query)
