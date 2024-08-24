@@ -103,6 +103,12 @@ func initializeDB(db *sql.DB) error {
 	return err
 }
 
+func addItem(db *sql.DB, title string, completed bool) error {
+	query := `INSERT INTO items (title, completed) VALUES (?, ?)`
+	_, err := db.Exec(query, title, completed)
+	return err
+}
+
 func main() {
 
 	db, err := sql.Open("sqlite3", "./checklist.db")
