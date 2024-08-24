@@ -119,15 +119,33 @@ func main() {
 		{Index: 9, Completed: true, Name: "test remove an item"},
 		{Index: 13, Completed: true, Name: "create new item from addFlag arg, and add to list"},
 		{Index: 14, Completed: true, Name: "test create new item from arg, completed should be false, index should be list len plus 1"},
+		//
+		// cli process
+		//
 		{Index: 15, Completed: false, Name: "create cli process loop"},
 		{Index: 16, Completed: false, Name: "render list in process"},
 		{Index: 17, Completed: false, Name: "render action prompt underneath rendered list in process"},
 		{Index: 18, Completed: false, Name: "capture stdin in process"},
 		{Index: 19, Completed: false, Name: "parse stdin command in process prompt"},
 		{Index: 20, Completed: false, Name: "map stdin command in process prompt to correct action"},
-		{Index: 21, Completed: false, Name: "save list to .txt file"},
 		{Index: 22, Completed: false, Name: "add identifier to items"},
-		{Index: 23, Completed: false, Name: "add index to render"},
+		//
+		{Index: 23, Completed: true, Name: "add index to render"},
+		//
+		// persistence
+		//
+		{Index: 21, Completed: false, Name: "save list to sqlite db"},
+		{Index: 24, Completed: false, Name: "save list to binary"},
+		{Index: 25, Completed: false, Name: "create checklist table"},
+		{Index: 26, Completed: false, Name: "create item table"},
+		{Index: 27, Completed: false, Name: "create item table"},
+		//
+		// config
+		//
+		// yaml ?
+		// json ?
+		// txt ?
+		{Index: 28, Completed: false, Name: "refactor flag parsing"},
 	}
 
 	// NOTE: We can probably extract this to a new function
