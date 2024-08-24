@@ -20,6 +20,7 @@ var (
 )
 
 type Item struct {
+	ID        int
 	Index     int
 	Completed bool
 	Title     string
@@ -29,9 +30,9 @@ var list []Item
 
 func RenderItemInBuffer(w io.Writer, item Item) {
 	if item.Index > 9 {
-		fmt.Fprintf(w, "%d. ", item.Index)
+		fmt.Fprintf(w, "%d. ", item.ID)
 	} else {
-		fmt.Fprintf(w, "%d.  ", item.Index)
+		fmt.Fprintf(w, "%d.  ", item.ID)
 	}
 	if item.Completed {
 		fmt.Fprint(w, "[x]")
