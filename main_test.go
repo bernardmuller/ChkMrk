@@ -1,4 +1,4 @@
-package main
+/ackage main
 
 import (
 	"bytes"
@@ -11,8 +11,8 @@ func TestRenderItem(t *testing.T) {
 		item     Item
 		expected string
 	}{
-		{Item{Index: 1, Name: "Task 1", Completed: true}, "1.  [x] Task 1\n"},
-		{Item{Index: 2, Name: "Task 2", Completed: false}, "2.  [ ] Task 2\n"},
+		{Item{Index: 1, Title: "Task 1", Completed: true}, "1.  [x] Task 1\n"},
+		{Item{Index: 2, Title: "Task 2", Completed: false}, "2.  [ ] Task 2\n"},
 	}
 
 	for _, test := range tests {
@@ -33,15 +33,15 @@ func TestRenderList(t *testing.T) {
 	}{
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
 			},
 			"1.  [x] Task 1\n2.  [ ] Task 2\n",
 		},
 		{
 			[]Item{
-				{Index: 3, Name: "Task 3", Completed: false},
-				{Index: 4, Name: "Task 4", Completed: false},
+				{Index: 3, Title: "Task 3", Completed: false},
+				{Index: 4, Title: "Task 4", Completed: false},
 			},
 			"3.  [ ] Task 3\n4.  [ ] Task 4\n",
 		},
@@ -70,22 +70,22 @@ func TestAddItem(t *testing.T) {
 	}{
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
 			},
-			Item{Index: 3, Name: "Task 3", Completed: false},
+			Item{Index: 3, Title: "Task 3", Completed: false},
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
-				{Index: 3, Name: "Task 3", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
+				{Index: 3, Title: "Task 3", Completed: false},
 			},
 		},
 
 		{
 			[]Item{}, // Test for an empty list
-			Item{Index: 1, Name: "Task 1", Completed: false},
+			Item{Index: 1, Title: "Task 1", Completed: false},
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: false},
 			},
 		},
 	}
@@ -107,50 +107,50 @@ func TestCompleteItem(t *testing.T) {
 	}{
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: false},
-				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: false},
+				{Index: 2, Title: "Task 2", Completed: false},
 			},
 			1,
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
 			},
 		},
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
 			},
 			2,
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: true},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: true},
 			},
 		},
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
-				{Index: 3, Name: "Task 3", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
+				{Index: 3, Title: "Task 3", Completed: false},
 			},
 			3,
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
-				{Index: 3, Name: "Task 3", Completed: true},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
+				{Index: 3, Title: "Task 3", Completed: true},
 			},
 		},
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
-				{Index: 3, Name: "Task 3", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
+				{Index: 3, Title: "Task 3", Completed: false},
 			},
 			1,
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
-				{Index: 3, Name: "Task 3", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
+				{Index: 3, Title: "Task 3", Completed: false},
 			},
 		},
 	}
@@ -172,50 +172,50 @@ func TestInCompleteItem(t *testing.T) {
 	}{
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: false},
-				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: false},
+				{Index: 2, Title: "Task 2", Completed: false},
 			},
 			1,
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: false},
-				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: false},
+				{Index: 2, Title: "Task 2", Completed: false},
 			},
 		},
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
 			},
 			2,
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
 			},
 		},
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
-				{Index: 3, Name: "Task 3", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
+				{Index: 3, Title: "Task 3", Completed: false},
 			},
 			1,
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: false},
-				{Index: 2, Name: "Task 2", Completed: false},
-				{Index: 3, Name: "Task 3", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: false},
+				{Index: 2, Title: "Task 2", Completed: false},
+				{Index: 3, Title: "Task 3", Completed: false},
 			},
 		},
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: true},
-				{Index: 3, Name: "Task 3", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: true},
+				{Index: 3, Title: "Task 3", Completed: false},
 			},
 			2,
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
-				{Index: 3, Name: "Task 3", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
+				{Index: 3, Title: "Task 3", Completed: false},
 			},
 		},
 	}
@@ -237,46 +237,46 @@ func TestRemoveItem(t *testing.T) {
 	}{
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: false},
-				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: false},
+				{Index: 2, Title: "Task 2", Completed: false},
 			},
 			1,
 			[]Item{
-				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 2, Title: "Task 2", Completed: false},
 			},
 		},
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
 			},
 			2,
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
+				{Index: 1, Title: "Task 1", Completed: true},
 			},
 		},
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: false},
-				{Index: 3, Name: "Task 3", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: false},
+				{Index: 3, Title: "Task 3", Completed: false},
 			},
 			1,
 			[]Item{
-				{Index: 2, Name: "Task 2", Completed: false},
-				{Index: 3, Name: "Task 3", Completed: false},
+				{Index: 2, Title: "Task 2", Completed: false},
+				{Index: 3, Title: "Task 3", Completed: false},
 			},
 		},
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 2, Name: "Task 2", Completed: true},
-				{Index: 3, Name: "Task 3", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 2, Title: "Task 2", Completed: true},
+				{Index: 3, Title: "Task 3", Completed: false},
 			},
 			2,
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: true},
-				{Index: 3, Name: "Task 3", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: true},
+				{Index: 3, Title: "Task 3", Completed: false},
 			},
 		},
 	}
@@ -298,31 +298,31 @@ func TestFindItemInList(t *testing.T) {
 	}{
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: false},
-				{Index: 2, Name: "Task 2", Completed: false},
-        {Index: 3, Name: "Task 3", Completed: false},
-        {Index: 4, Name: "Task 4", Completed: false},
-        {Index: 5, Name: "Task 5", Completed: false},
-        {Index: 6, Name: "Task 6", Completed: false},
-        {Index: 7, Name: "Task 7", Completed: false},
-        {Index: 8, Name: "Task 8", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: false},
+				{Index: 2, Title: "Task 2", Completed: false},
+        {Index: 3, Title: "Task 3", Completed: false},
+        {Index: 4, Title: "Task 4", Completed: false},
+        {Index: 5, Title: "Task 5", Completed: false},
+        {Index: 6, Title: "Task 6", Completed: false},
+        {Index: 7, Title: "Task 7", Completed: false},
+        {Index: 8, Title: "Task 8", Completed: false},
 			},
 			3,
-      Item{Index: 3, Name: "Task 3", Completed: false},
+      Item{Index: 3, Title: "Task 3", Completed: false},
 		},
 		{
 			[]Item{
-				{Index: 1, Name: "Task 1", Completed: false},
-				{Index: 2, Name: "Task 2", Completed: false},
-        {Index: 3, Name: "Task 3", Completed: false},
-        {Index: 4, Name: "Task 4", Completed: false},
-        {Index: 5, Name: "Task 5", Completed: false},
-        {Index: 6, Name: "Task 6", Completed: false},
-        {Index: 7, Name: "Task 7", Completed: false},
-        {Index: 8, Name: "Task 8", Completed: false},
+				{Index: 1, Title: "Task 1", Completed: false},
+				{Index: 2, Title: "Task 2", Completed: false},
+        {Index: 3, Title: "Task 3", Completed: false},
+        {Index: 4, Title: "Task 4", Completed: false},
+        {Index: 5, Title: "Task 5", Completed: false},
+        {Index: 6, Title: "Task 6", Completed: false},
+        {Index: 7, Title: "Task 7", Completed: false},
+        {Index: 8, Title: "Task 8", Completed: false},
 			},
 			7,
-      Item{Index:  7, Name: "Task 7", Completed: false},
+      Item{Index:  7, Title: "Task 7", Completed: false},
 		},
 	}
 

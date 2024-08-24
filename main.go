@@ -22,7 +22,7 @@ var (
 type Item struct {
 	Index     int
 	Completed bool
-	Name      string
+	Title     string
 }
 
 var list []Item
@@ -38,7 +38,7 @@ func RenderItemInBuffer(w io.Writer, item Item) {
 	} else {
 		fmt.Fprint(w, "[ ]")
 	}
-	fmt.Fprintf(w, " %s\n", item.Name)
+	fmt.Fprintf(w, " %s\n", item.Title)
 }
 
 func RenderListInBuffer(w io.Writer, list []Item) {
@@ -117,47 +117,47 @@ func main() {
 
 	// NOTE: This will probably be saved inside a DB or a MD file
 	list := []Item{
-		{Index: 1, Completed: true, Name: "make a list of items"},
-		{Index: 2, Completed: true, Name: "test functions that render items"},
-		{Index: 3, Completed: true, Name: "parse cli entrypoint without args"},
-		{Index: 4, Completed: true, Name: "parse cli entrypoint with args"},
-		{Index: 5, Completed: true, Name: "parse add item flag"},
-		{Index: 12, Completed: true, Name: "parse check item flag"},
-		{Index: 11, Completed: true, Name: "parse remove item flag"},
-		{Index: 10, Completed: true, Name: "list args"},
-		{Index: 6, Completed: true, Name: "test check an item"},
-		{Index: 7, Completed: true, Name: "test uncheck an item"},
-		{Index: 8, Completed: true, Name: "test add a new item"},
-		{Index: 9, Completed: true, Name: "test remove an item"},
-		{Index: 13, Completed: true, Name: "create new item from addFlag arg, and add to list"},
-		{Index: 14, Completed: true, Name: "test create new item from arg, completed should be false, index should be list len plus 1"},
+		{Index: 1, Completed: true, Title: "make a list of items"},
+		{Index: 2, Completed: true, Title: "test functions that render items"},
+		{Index: 3, Completed: true, Title: "parse cli entrypoint without args"},
+		{Index: 4, Completed: true, Title: "parse cli entrypoint with args"},
+		{Index: 5, Completed: true, Title: "parse add item flag"},
+		{Index: 12, Completed: true, Title: "parse check item flag"},
+		{Index: 11, Completed: true, Title: "parse remove item flag"},
+		{Index: 10, Completed: true, Title: "list args"},
+		{Index: 6, Completed: true, Title: "test check an item"},
+		{Index: 7, Completed: true, Title: "test uncheck an item"},
+		{Index: 8, Completed: true, Title: "test add a new item"},
+		{Index: 9, Completed: true, Title: "test remove an item"},
+		{Index: 13, Completed: true, Title: "create new item from addFlag arg, and add to list"},
+		{Index: 14, Completed: true, Title: "test create new item from arg, completed should be false, index should be list len plus 1"},
 		//
 		// cli process
 		//
-		{Index: 15, Completed: false, Name: "create cli process loop"},
-		{Index: 16, Completed: false, Name: "render list in process"},
-		{Index: 17, Completed: false, Name: "render action prompt underneath rendered list in process"},
-		{Index: 18, Completed: false, Name: "capture stdin in process"},
-		{Index: 19, Completed: false, Name: "parse stdin command in process prompt"},
-		{Index: 20, Completed: false, Name: "map stdin command in process prompt to correct action"},
-		{Index: 22, Completed: false, Name: "add identifier to items"},
+		{Index: 15, Completed: false, Title: "create cli process loop"},
+		{Index: 16, Completed: false, Title: "render list in process"},
+		{Index: 17, Completed: false, Title: "render action prompt underneath rendered list in process"},
+		{Index: 18, Completed: false, Title: "capture stdin in process"},
+		{Index: 19, Completed: false, Title: "parse stdin command in process prompt"},
+		{Index: 20, Completed: false, Title: "map stdin command in process prompt to correct action"},
+		{Index: 22, Completed: false, Title: "add identifier to items"},
 		//
-		{Index: 23, Completed: true, Name: "add index to render"},
+		{Index: 23, Completed: true, Title: "add index to render"},
 		//
 		// persistence
 		//
-		{Index: 21, Completed: false, Name: "save list to sqlite db"},
-		{Index: 24, Completed: false, Name: "save list to binary"},
-		{Index: 25, Completed: false, Name: "create checklist table"},
-		{Index: 26, Completed: false, Name: "create item table"},
-		{Index: 27, Completed: false, Name: "create item table"},
+		{Index: 21, Completed: false, Title: "save list to sqlite db"},
+		{Index: 24, Completed: false, Title: "save list to binary"},
+		{Index: 25, Completed: false, Title: "create checklist table"},
+		{Index: 26, Completed: false, Title: "create item table"},
+		{Index: 27, Completed: false, Title: "create item table"},
 		//
 		// config
 		//
 		// yaml ?
 		// json ?
 		// txt ?
-		{Index: 28, Completed: false, Name: "refactor flag parsing"},
+		{Index: 28, Completed: false, Title: "refactor flag parsing"},
 	}
 
 	// NOTE: We can probably extract this to a new function
@@ -170,7 +170,7 @@ func main() {
 	var buffer bytes.Buffer
 
 	if addFlag != "default" {
-		newlist := AddItemToList(list, Item{Index: len(list) + 1, Completed: false, Name: addFlag})
+		newlist := AddItemToList(list, Item{Index: len(list) + 1, Completed: false, Title: addFlag})
 
 		RenderListInBuffer(&buffer, newlist)
 		fmt.Print(buffer.String())
