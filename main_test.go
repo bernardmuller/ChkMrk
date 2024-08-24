@@ -1,4 +1,4 @@
-/ackage main
+package main
 
 import (
 	"bytes"
@@ -300,41 +300,41 @@ func TestFindItemInList(t *testing.T) {
 			[]Item{
 				{Index: 1, Title: "Task 1", Completed: false},
 				{Index: 2, Title: "Task 2", Completed: false},
-        {Index: 3, Title: "Task 3", Completed: false},
-        {Index: 4, Title: "Task 4", Completed: false},
-        {Index: 5, Title: "Task 5", Completed: false},
-        {Index: 6, Title: "Task 6", Completed: false},
-        {Index: 7, Title: "Task 7", Completed: false},
-        {Index: 8, Title: "Task 8", Completed: false},
+				{Index: 3, Title: "Task 3", Completed: false},
+				{Index: 4, Title: "Task 4", Completed: false},
+				{Index: 5, Title: "Task 5", Completed: false},
+				{Index: 6, Title: "Task 6", Completed: false},
+				{Index: 7, Title: "Task 7", Completed: false},
+				{Index: 8, Title: "Task 8", Completed: false},
 			},
 			3,
-      Item{Index: 3, Title: "Task 3", Completed: false},
+			Item{Index: 3, Title: "Task 3", Completed: false},
 		},
 		{
 			[]Item{
 				{Index: 1, Title: "Task 1", Completed: false},
 				{Index: 2, Title: "Task 2", Completed: false},
-        {Index: 3, Title: "Task 3", Completed: false},
-        {Index: 4, Title: "Task 4", Completed: false},
-        {Index: 5, Title: "Task 5", Completed: false},
-        {Index: 6, Title: "Task 6", Completed: false},
-        {Index: 7, Title: "Task 7", Completed: false},
-        {Index: 8, Title: "Task 8", Completed: false},
+				{Index: 3, Title: "Task 3", Completed: false},
+				{Index: 4, Title: "Task 4", Completed: false},
+				{Index: 5, Title: "Task 5", Completed: false},
+				{Index: 6, Title: "Task 6", Completed: false},
+				{Index: 7, Title: "Task 7", Completed: false},
+				{Index: 8, Title: "Task 8", Completed: false},
 			},
 			7,
-      Item{Index:  7, Title: "Task 7", Completed: false},
+			Item{Index: 7, Title: "Task 7", Completed: false},
 		},
 	}
 
 	for index, test := range tests {
 		actual, err := FindItemInList(test.items, test.index)
 
-    if(err != nil) {
-      t.Errorf("Test number %d -> FindItemInList(%v, %v) = %v; expected %v", index, test.items, test.index, actual, test.expected)
-    }
+		if err != nil {
+			t.Errorf("Test number %d -> FindItemInList(%v, %v) = %v; expected %v", index, test.items, test.index, actual, test.expected)
+		}
 
 		if !reflect.DeepEqual(actual, test.expected) {
-      t.Errorf("Test number %d -> FindItemInList(%v, %v) = %v; expected %v", index, test.items, test.index, actual, test.expected)
+			t.Errorf("Test number %d -> FindItemInList(%v, %v) = %v; expected %v", index, test.items, test.index, actual, test.expected)
 		}
 	}
 }
