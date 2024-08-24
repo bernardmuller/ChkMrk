@@ -143,7 +143,7 @@ func main() {
 	}
 
 	// NOTE: This will probably be saved inside a DB or a MD file
-	list := []Item{
+	seedList := []Item{
 		{Index: 1, Completed: true, Title: "make a list of items"},
 		{Index: 2, Completed: true, Title: "test functions that render items"},
 		{Index: 3, Completed: true, Title: "parse cli entrypoint without args"},
@@ -187,6 +187,12 @@ func main() {
 		{Index: 28, Completed: false, Title: "refactor flag parsing"},
 	}
 
+	dbItems, err := getItems(db)
+	if len(dbItems) == 0 {
+		for i := 0; i < len(seedList); i++ {
+			addItem(db, list[i].Title, list[i].Completed)
+		}
+	}
 	// NOTE: We can probably extract this to a new function
 	flag.StringVar(&addFlag, "a", "default", "help message")
 	flag.IntVar(&checkFlag, "c", 0, "help message")
