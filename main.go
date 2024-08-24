@@ -90,6 +90,18 @@ func FindItemInList(list []Item, index int) (Item, error) {
 	return Item{}, errors.New(fmt.Sprintf("Failed to find Item with Index: %d", index))
 }
 
+func initializeDB(db *sql.DB) error {
+	query := `
+	CREATE TABLE IF NOT EXISTS tasks (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		titl/ TEXT NOT NULL,
+		completed BOOLEAN NOT NULL
+	);
+	`
+	_, err := db.Exec(query)
+	return err
+}
+
 func main() {
 
 	db, err := sql.Open("sqlite3", "./checklist.db")
