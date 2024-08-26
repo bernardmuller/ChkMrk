@@ -29,7 +29,7 @@ type Item struct {
 var list []Item
 
 func RenderItemInBuffer(w io.Writer, item Item) {
-	if item.Index > 9 {
+	if item.ID > 9 {
 		fmt.Fprintf(w, "%d. ", item.ID)
 	} else {
 		fmt.Fprintf(w, "%d.  ", item.ID)
@@ -129,6 +129,39 @@ func getItems(db *sql.DB) ([]Item, error) {
 	return items, nil
 }
 
+func updateItemCompleted(db *sql.DB, id int, completed bool) error {
+	query := `UPDATE items SET completed = ? WHERE id = ?`
+	_, err := db.Exec(query, completed, id)
+	return err
+}
+
+func getItemById(db *sql.DB, id int) (Item, error) {
+	query := `SELECT * FROM items WHERE id = ?`
+
+	row, err := db.Query(query, id)
+	if err != nil {
+		return Item{}, err
+	}
+	defer row.Close()
+
+	var item Item
+
+	for row.Next() {
+		err = row.Scan(&item.ID, &item.Title, &item.Completed)
+		if err != nil {
+			return Item{}, err
+		}
+	}
+
+	return item, nil
+}
+
+func deleteItem(db *sql.DB, id int) error {
+	query := `DELETE FROM items WHERE id = ?`
+	_, err := db.Exec(query, id)
+	return err
+}
+
 func main() {
 
 	db, err := sql.Open("sqlite3", "./checklist.db")
@@ -211,31 +244,51 @@ func main() {
 	}
 
 	if checkFlag != 0 {
-		item, err := FindItemInList(list, checkFlag)
-
+		item, err := getItemById(db, checkFlag)
 		if err != nil {
-			fmt.Errorf("Error checking item: %s", err.Error())
+			log.Fatalf("Error finding item with id %d: %s", checkFlag, err.Error())
 		}
 
 		if !item.Completed {
-			list = CompleteItem(list, item.Index)
+			updateItemCompleted(db, item.ID, true)
+			list, err := getItems(db)
+			if err != nil {
+				fmt.Errorf("Error updating item: %s", err.Error())
+			}
 			RenderListInBuffer(&buffer, list)
 			fmt.Print(buffer.String())
 		} else {
-			list = IncompleteItem(list, item.Index)
+			updateItemCompleted(db, item.ID, false)
+			list, err := getItems(db)
+			if err != nil {
+				fmt.Errorf("Error updating item: %s", err.Error())
+			}
 			RenderListInBuffer(&buffer, list)
 			fmt.Print(buffer.String())
 		}
 	}
 
 	if removeFlag != 0 {
-		item, err := FindItemInList(list, removeFlag)
-
+		item, err := getItemById(db, removeFlag)
 		if err != nil {
-			fmt.Errorf("Error checking item: %s", err.Error())
+			log.Fatalf("Error finding item with ID %d: %s", removeFlag, err.Error())
 		}
 
-		list = RemoveItemFromList(list, item.Index)
+		list, err := getItems(db)
+		if err != nil {
+			fmt.Errorf("Error updating item: %s", err.Error())
+		}
+
+		err = deleteItem(db, item.Index)
+		if err != nil {
+			log.Fatalf("Error deleteing item: %s", err.Error())
+		}
+
+		list, err = getItems(db)
+		if err != nil {
+			log.Println(err)
+		}
+
 		RenderListInBuffer(&buffer, list)
 		fmt.Print(buffer.String())
 	}
