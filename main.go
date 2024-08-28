@@ -74,7 +74,6 @@ func initialModel(db *sql.DB) model {
 }
 
 func (m model) Init() tea.Cmd {
-	// Just return `nil`, which means "no I/O right now, please."
 	return textinput.Blink
 }
 
@@ -85,15 +84,28 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.Type {
-			case tea.KeyEnter, tea.KeyCtrlC:
+			case tea.KeyCtrlC:
 				return m, tea.Quit
 
 			case tea.KeyEsc:
 				m.showInput = false
 				return m, nil
 
+			case tea.KeyEnter:
+				addItem(m.db, m.textInput.Value(), false)
+				updatedList, _ := getItems(m.db)
+				m.items = updatedList
+				choices := make([]string, len(updatedList))
+				for i, item := range updatedList {
+					choices[i] = item.Title
+				}
+				m.choices = choices
+				m.textInput.Placeholder = ""
+
+				m.showInput = false
+				return m, nil
+
 			}
-		// We handle errors just like any other message
 		case errMsg:
 			m.err = msg
 			return m, nil
@@ -105,30 +117,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	switch msg := msg.(type) {
 
-	// Is it a key press?
 	case tea.KeyMsg:
-
-		// Cool, what was the actual key pressed?
 		switch msg.String() {
 
-		// These keys should exit the program.
 		case "ctrl+c", "q":
 			return m, tea.Quit
 
-		// The "up" and "k" keys move the cursor up
 		case "up", "k":
 			if m.cursor > 0 {
 				m.cursor--
 			}
 
-		// The "down" and "j" keys move the cursor down
 		case "down", "j":
 			if m.cursor < len(m.choices)-1 {
 				m.cursor++
 			}
 
-		// The "enter" key and the spacebar (a literal space) toggle
-		// the selected state for the item that the cursor is pointing at.
 		case "enter", " ":
 			_, ok := m.selected[m.cursor]
 			if ok {
@@ -154,7 +158,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				choices[i] = item.Title
 			}
 			m.choices = choices
-			m.cursor = 0
+			if m.cursor > 1 {
+				m.cursor--
+			} else {
+				m.cursor = 1
+			}
 
 		case "a":
 			m.showInput = true
@@ -166,8 +174,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	// Return the updated model to the Bubble Tea runtime for processing.
-	// Note that we're not returning a command.
 	return m, nil
 }
 
@@ -175,18 +181,16 @@ func (m model) View() string {
 	s := "My Checklist\n\n"
 
 	for i, choice := range m.choices {
-		cursor := " " // no cursor
+		cursor := " "
 		if m.cursor == i {
-			cursor = ">" // cursor!
+			cursor = ">"
 		}
 
-		// Is this choice selected?
-		checked := " " // not selected
+		checked := " "
 		if _, ok := m.selected[i]; ok {
-			checked = "x" // selected!
+			checked = "x"
 		}
 
-		// Render the row
 		s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, choice)
 	}
 
