@@ -17,7 +17,12 @@ import (
 	"ChkMrk/cmd"
 	"slices"
 
+	textinput "github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+)
+
+type (
+	errMsg error
 )
 
 var (
@@ -28,11 +33,14 @@ var (
 )
 
 type model struct {
-	db       *sql.DB
-	items    []Item
-	choices  []string     // items on the to-do list
-	cursor   int          // which to-do list item our cursor is pointing at
-	selected map[int]Item // which to-do items are selected
+	db        *sql.DB
+	items     []Item
+	choices   []string     // items on the to-do list
+	cursor    int          // which to-do list item our cursor is pointing at
+	selected  map[int]Item // which to-do items are selected
+	textInput textinput.Model
+	err       error
+	showInput bool
 }
 
 func initialModel(db *sql.DB) model {
@@ -48,20 +56,53 @@ func initialModel(db *sql.DB) model {
 		}
 	}
 
+	ti := textinput.New()
+	ti.Placeholder = "Pikachu"
+	ti.Focus()
+	ti.CharLimit = 156
+	ti.Width = 20
+
 	return model{
-		db:       db,
-		items:    items,
-		choices:  choices,
-		selected: selected,
+		db:        db,
+		items:     items,
+		choices:   choices,
+		selected:  selected,
+		textInput: ti,
+		err:       nil,
+		showInput: false,
 	}
 }
 
 func (m model) Init() tea.Cmd {
 	// Just return `nil`, which means "no I/O right now, please."
-	return nil
+	return textinput.Blink
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if m.showInput {
+		var cmd tea.Cmd
+
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.Type {
+			case tea.KeyEnter, tea.KeyCtrlC:
+				return m, tea.Quit
+
+			case tea.KeyEsc:
+				m.showInput = false
+				return m, nil
+
+			}
+		// We handle errors just like any other message
+		case errMsg:
+			m.err = msg
+			return m, nil
+		}
+
+		m.textInput, cmd = m.textInput.Update(msg)
+		return m, cmd
+
+	}
 	switch msg := msg.(type) {
 
 	// Is it a key press?
@@ -101,6 +142,27 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				updatedList, _ := getItems(m.db)
 				m.items = updatedList
 			}
+
+		case "x":
+			delete(m.selected, m.cursor)
+			deleteItem(m.db, m.items[m.cursor].ID)
+			updatedList, _ := getItems(m.db)
+			m.items = updatedList
+
+			choices := make([]string, len(updatedList))
+			for i, item := range updatedList {
+				choices[i] = item.Title
+			}
+			m.choices = choices
+			m.cursor = 0
+
+		case "a":
+			m.showInput = true
+
+		case "esc":
+			if m.showInput {
+				m.showInput = false
+			}
 		}
 	}
 
@@ -126,6 +188,14 @@ func (m model) View() string {
 
 		// Render the row
 		s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, choice)
+	}
+
+	if m.showInput {
+		s += fmt.Sprintf(
+			"\nEnter title of new item:\n\n%s\n\n%s",
+			m.textInput.View(),
+			"(esc to quit)",
+		) + "\n"
 	}
 
 	s += "\nPress q to quit.\n"
