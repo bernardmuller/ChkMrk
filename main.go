@@ -25,6 +25,15 @@ type (
 	errMsg error
 )
 
+type Layout int
+
+const (
+	Unknown Layout = iota
+	Checklists
+	ChecklistDetail
+	Templates
+)
+
 var (
 	addItemFlag    string
 	checkItemFlag  int
@@ -33,43 +42,53 @@ var (
 )
 
 type model struct {
-	db        *sql.DB
-	items     []Item
-	choices   []string     // items on the to-do list
-	cursor    int          // which to-do list item our cursor is pointing at
-	selected  map[int]Item // which to-do items are selected
-	textInput textinput.Model
-	err       error
-	showInput bool
+	db         *sql.DB
+	items      []Item
+	checklists []Checklist
+	choices    []string
+	cursor     int
+	selected   map[int]Item
+	textInput  textinput.Model
+	err        error
+	showInput  bool
+	layout     Layout
+	activeList int
 }
 
 func initialModel(db *sql.DB) model {
 	items, _ := getItems(db)
+
+	checklists, _ := getChecklists(db)
 	choices := make([]string, len(items))
-	for i, item := range items {
-		choices[i] = item.Title
+	for i, list := range checklists {
+		choices[i] = list.Title
 	}
 	selected := make(map[int]Item, len(items))
-	for i, item := range items {
-		if item.Completed {
-			selected[i] = item
-		}
-	}
+	// for i, item := range items {
+	// 	if item.Completed {
+	// 		selected[i] = item
+	// 	}
+	// }
 
 	ti := textinput.New()
-	ti.Placeholder = "Pikachu"
+	ti.Placeholder = "Steal the moon"
 	ti.Focus()
 	ti.CharLimit = 156
 	ti.Width = 20
 
+	var currentLayout Layout = Checklists
+
 	return model{
-		db:        db,
-		items:     items,
-		choices:   choices,
-		selected:  selected,
-		textInput: ti,
-		err:       nil,
-		showInput: false,
+		db:         db,
+		items:      items,
+		checklists: checklists,
+		choices:    choices,
+		selected:   selected,
+		textInput:  ti,
+		err:        nil,
+		showInput:  false,
+		layout:     currentLayout,
+		activeList: -1,
 	}
 }
 
@@ -77,7 +96,7 @@ func (m model) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func ChecklistDetailAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 	if m.showInput {
 		var cmd tea.Cmd
 
@@ -92,7 +111,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 
 			case tea.KeyEnter:
-				addItem(m.db, m.textInput.Value(), false)
+				addItem(m.db, m.textInput.Value(), false, 1)
 				updatedList, _ := getItems(m.db)
 				m.items = updatedList
 				choices := make([]string, len(updatedList))
@@ -177,8 +196,78 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+func ChecklistAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
+
+	switch msg := msg.(type) {
+
+	case tea.KeyMsg:
+
+		switch msg.String() {
+		case "l":
+			m.activeList = m.checklists[m.cursor].ID
+			items, _ := getItemsByChecklistId(m.db, m.activeList)
+			for i := 0; i < len(items); i++ {
+				m.choices[i] = items[i].Title
+				if items[i].Completed {
+					m.selected[i] = items[i]
+				}
+			}
+			m.layout = 2
+
+		}
+	}
+
+	return m, nil
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch m.layout {
+	case 1:
+		return ChecklistAction(m, msg)
+	case 2:
+		return ChecklistDetailAction(m, msg)
+	}
+	return m, nil
+
+}
+
 func (m model) View() string {
-	s := "My Checklist\n\n"
+	switch m.layout {
+	case 1:
+		return ChecklistView(m)
+	case 2:
+		return ChecklistDetailView(m)
+	}
+	return "Not Found\n"
+}
+
+func ChecklistView(m model) string {
+	s := "My Checklists\n\n"
+
+	for i, list := range m.checklists {
+		cursor := " "
+		if m.cursor == i {
+			cursor = ">"
+		}
+
+		s += fmt.Sprintf("%s %d. %s\n", cursor, i+1, list.Title)
+	}
+
+	if m.showInput {
+		s += fmt.Sprintf(
+			"\nEnter title of new checklist:\n\n%s\n\n%s",
+			m.textInput.View(),
+			"(esc to quit)",
+		) + "\n"
+	}
+
+	s += "\nPress q to quit.\n"
+
+	return s
+}
+
+func ChecklistDetailView(m model) string {
+	s := "Checklist detail\n\n"
 
 	for i, choice := range m.choices {
 		cursor := " "
@@ -208,10 +297,16 @@ func (m model) View() string {
 }
 
 type Item struct {
-	ID        int
-	Index     int
-	Completed bool
-	Title     string
+	ID          int
+	Index       int
+	Completed   bool
+	Title       string
+	ChecklistID int
+}
+
+type Checklist struct {
+	ID    int
+	Title string
 }
 
 var list []Item
@@ -280,11 +375,11 @@ func FindItemInList(list []Item, index int) (Item, error) {
 }
 
 func initializeDB(db *sql.DB) error {
+	fmt.Println("Initializing DB...")
 	checklistsQuery := `
 	CREATE TABLE IF NOT EXISTS checklists (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		title TEXT NOT NULL,
-		completed BOOLEAN NOT NULL
+		title TEXT NOT NULL
 	);`
 
 	_, checklistsErr := db.Exec(checklistsQuery)
@@ -296,17 +391,41 @@ func initializeDB(db *sql.DB) error {
 	CREATE TABLE IF NOT EXISTS items (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		title TEXT NOT NULL,
-		completed BOOLEAN NOT NULL
+		completed BOOLEAN NOT NULL,
+    checklist_id INTEGER,
+    FOREIGN KEY (checklist_id) REFERENCES checklists(id)
 	);
 	`
 	_, itemsErr := db.Exec(itemsQuery)
+
+	fmt.Println("DB done initialized.")
 	return itemsErr
 }
 
-func addItem(db *sql.DB, title string, completed bool) error {
-	query := `INSERT INTO items (title, completed) VALUES (?, ?)`
-	_, err := db.Exec(query, title, completed)
+func addItem(db *sql.DB, title string, completed bool, checklist_id int) error {
+	query := `INSERT INTO items (title, completed, checklist_id) VALUES (?, ?, ?);`
+	_, err := db.Exec(query, title, completed, checklist_id)
 	return err
+}
+
+func getChecklists(db *sql.DB) ([]Checklist, error) {
+	query := `SELECT id, title FROM checklists`
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var lists []Checklist
+	for rows.Next() {
+		var list Checklist
+		err := rows.Scan(&list.ID, &list.Title)
+		if err != nil {
+			return nil, err
+		}
+		lists = append(lists, list)
+	}
+	return lists, nil
 }
 
 func getItems(db *sql.DB) ([]Item, error) {
@@ -327,6 +446,33 @@ func getItems(db *sql.DB) ([]Item, error) {
 		items = append(items, item)
 	}
 	return items, nil
+}
+
+func getItemsByChecklistId(db *sql.DB, checklist_id int) ([]Item, error) {
+	query := `SELECT id, title, completed FROM items WHERE checklist_id = ?`
+	rows, err := db.Query(query, checklist_id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []Item
+	for rows.Next() {
+		var item Item
+		err := rows.Scan(&item.ID, &item.Title, &item.Completed)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, nil
+}
+
+func addChecklist(db *sql.DB, title string) error {
+	query := `INSERT INTO checklists (title) VALUES (?);`
+	_, err := db.Exec(query, title)
+	return err
+
 }
 
 func updateItemCompleted(db *sql.DB, id int, completed bool) error {
@@ -372,9 +518,75 @@ func main() {
 	}
 	defer db.Close()
 
+	// itemsQuery := `
+	// ALTER TABLE items ADD COLUMN checklist_id INTEGER NOT NULL;
+	// `
+	// _, err = db.Exec(itemsQuery)
+	// if err != nil {
+	// 	log.Fatalf("Fail :%s", err.Error())
+	// }
+
 	// Initialize the database schema.
 	if err := initializeDB(db); err != nil {
-		log.Fatal(err)
+		log.Fatalf("Initialization error: %s", err.Error())
+	}
+
+	//
+	// // NOTE: This will probably be saved inside a DB or a MD file
+	seedList := []Item{
+		{Index: 1, Completed: true, Title: "make a list of items"},
+		{Index: 2, Completed: true, Title: "test functions that render items"},
+		{Index: 3, Completed: true, Title: "parse cli entrypoint without args"},
+		{Index: 4, Completed: true, Title: "parse cli entrypoint with args"},
+		{Index: 5, Completed: true, Title: "parse add item flag"},
+		{Index: 12, Completed: true, Title: "parse check item flag"},
+		{Index: 11, Completed: true, Title: "parse remove item flag"},
+		{Index: 10, Completed: true, Title: "list args"},
+		{Index: 6, Completed: true, Title: "test check an item"},
+		{Index: 7, Completed: true, Title: "test uncheck an item"},
+		{Index: 8, Completed: true, Title: "test add a new item"},
+		{Index: 9, Completed: true, Title: "test remove an item"},
+		{Index: 13, Completed: true, Title: "create new item from addItemFlag arg, and add to list"},
+		{Index: 14, Completed: true, Title: "test create new item from arg, completed should be false, index should be list len plus 1"},
+		{Index: 15, Completed: false, Title: "create cli process loop"},
+		{Index: 16, Completed: false, Title: "render list in process"},
+		{Index: 17, Completed: false, Title: "render action prompt underneath rendered list in process"},
+		{Index: 18, Completed: false, Title: "capture stdin in process"},
+		{Index: 19, Completed: false, Title: "parse stdin command in process prompt"},
+		{Index: 20, Completed: false, Title: "map stdin command in process prompt to correct action"},
+		{Index: 22, Completed: false, Title: "add identifier to items"},
+		{Index: 23, Completed: true, Title: "add index to render"},
+		{Index: 21, Completed: false, Title: "save list to sqlite db"},
+		{Index: 24, Completed: false, Title: "save list to binary"},
+		{Index: 25, Completed: false, Title: "create checklist table"},
+		{Index: 26, Completed: false, Title: "create item table"},
+		{Index: 27, Completed: false, Title: "create item table"},
+		{Index: 28, Completed: false, Title: "refactor flag parsing"},
+	}
+
+	checklists, err := getChecklists(db)
+	if len(checklists) == 0 {
+		fmt.Println("Seeding checklists...")
+		err := addChecklist(db, "My First Checklist")
+		if err != nil {
+			fmt.Printf("Error adding checklist: %s", err.Error())
+		}
+	}
+
+	dbItems, err := getItems(db)
+	if len(dbItems) == 0 {
+		fmt.Println("Seeding DB...")
+		firstList, err := getChecklists(db)
+		if err != nil {
+			log.Printf("ERR: %s", err.Error())
+		}
+		firstId := firstList[0].ID
+		for i := 0; i < len(seedList); i++ {
+			err := addItem(db, seedList[i].Title, seedList[i].Completed, firstId)
+			if err != nil {
+				log.Printf("Error adding item in seed: %s", err.Error())
+			}
+		}
 	}
 
 	p := tea.NewProgram(initialModel(db))
@@ -382,46 +594,6 @@ func main() {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
 	}
-	//
-	// // NOTE: This will probably be saved inside a DB or a MD file
-	// seedList := []Item{
-	// 	{Index: 1, Completed: true, Title: "make a list of items"},
-	// 	{Index: 2, Completed: true, Title: "test functions that render items"},
-	// 	{Index: 3, Completed: true, Title: "parse cli entrypoint without args"},
-	// 	{Index: 4, Completed: true, Title: "parse cli entrypoint with args"},
-	// 	{Index: 5, Completed: true, Title: "parse add item flag"},
-	// 	{Index: 12, Completed: true, Title: "parse check item flag"},
-	// 	{Index: 11, Completed: true, Title: "parse remove item flag"},
-	// 	{Index: 10, Completed: true, Title: "list args"},
-	// 	{Index: 6, Completed: true, Title: "test check an item"},
-	// 	{Index: 7, Completed: true, Title: "test uncheck an item"},
-	// 	{Index: 8, Completed: true, Title: "test add a new item"},
-	// 	{Index: 9, Completed: true, Title: "test remove an item"},
-	// 	{Index: 13, Completed: true, Title: "create new item from addItemFlag arg, and add to list"},
-	// 	{Index: 14, Completed: true, Title: "test create new item from arg, completed should be false, index should be list len plus 1"},
-	// 	{Index: 15, Completed: false, Title: "create cli process loop"},
-	// 	{Index: 16, Completed: false, Title: "render list in process"},
-	// 	{Index: 17, Completed: false, Title: "render action prompt underneath rendered list in process"},
-	// 	{Index: 18, Completed: false, Title: "capture stdin in process"},
-	// 	{Index: 19, Completed: false, Title: "parse stdin command in process prompt"},
-	// 	{Index: 20, Completed: false, Title: "map stdin command in process prompt to correct action"},
-	// 	{Index: 22, Completed: false, Title: "add identifier to items"},
-	// 	{Index: 23, Completed: true, Title: "add index to render"},
-	// 	{Index: 21, Completed: false, Title: "save list to sqlite db"},
-	// 	{Index: 24, Completed: false, Title: "save list to binary"},
-	// 	{Index: 25, Completed: false, Title: "create checklist table"},
-	// 	{Index: 26, Completed: false, Title: "create item table"},
-	// 	{Index: 27, Completed: false, Title: "create item table"},
-	// 	{Index: 28, Completed: false, Title: "refactor flag parsing"},
-	// }
-	//
-	// dbItems, err := getItems(db)
-	// if len(dbItems) == 0 {
-	// 	for i := 0; i < len(seedList); i++ {
-	// 		addItem(db, list[i].Title, list[i].Completed)
-	// 	}
-	// }
-	//
 	// // NOTE: We can probably extract this to a new function
 	// flag.StringVar(&addItemFlag, "a", "default", "help message")
 	// flag.IntVar(&checkItemFlag, "c", 0, "help message")
