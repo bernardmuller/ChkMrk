@@ -113,7 +113,7 @@ func ChecklistDetailAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 
 			case tea.KeyEnter:
-				addItem(m.db, m.textInput.Value(), false, 1)
+				addItem(m.db, m.textInput.Value(), false, m.activeList)
 				updatedList, _ := getItems(m.db)
 				m.items = updatedList
 				choices := make([]string, len(updatedList))
