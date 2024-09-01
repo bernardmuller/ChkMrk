@@ -74,7 +74,7 @@ func initialModel(db *sql.DB) model {
 	ti.Placeholder = "Steal the moon"
 	ti.Focus()
 	ti.CharLimit = 156
-	ti.Width = 20
+	ti.Width = 40
 
 	var currentLayout Layout = Checklists
 
