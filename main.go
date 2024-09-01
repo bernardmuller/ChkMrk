@@ -120,6 +120,7 @@ func ChecklistDetailAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				m.choices = choices
 				m.textInput.Placeholder = ""
+				m.textInput.SetValue("")
 
 				m.showInput = false
 				return m, nil
