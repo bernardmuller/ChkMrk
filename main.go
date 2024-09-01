@@ -42,17 +42,18 @@ var (
 )
 
 type model struct {
-	db         *sql.DB
-	items      []Item
-	checklists []Checklist
-	choices    []string
-	cursor     int
-	selected   map[int]Item
-	textInput  textinput.Model
-	err        error
-	showInput  bool
-	layout     Layout
-	activeList int
+	db              *sql.DB
+	items           []Item
+	checklists      []Checklist
+	choices         []string
+	cursor          int
+	selected        map[int]Item
+	textInput       textinput.Model
+	err             error
+	showInput       bool
+	layout          Layout
+	activeList      int
+	activeListTitle string
 }
 
 func initialModel(db *sql.DB) model {
@@ -79,16 +80,17 @@ func initialModel(db *sql.DB) model {
 	var currentLayout Layout = Checklists
 
 	return model{
-		db:         db,
-		items:      items,
-		checklists: checklists,
-		choices:    choices,
-		selected:   selected,
-		textInput:  ti,
-		err:        nil,
-		showInput:  false,
-		layout:     currentLayout,
-		activeList: -1,
+		db:              db,
+		items:           items,
+		checklists:      checklists,
+		choices:         choices,
+		selected:        selected,
+		textInput:       ti,
+		err:             nil,
+		showInput:       false,
+		layout:          currentLayout,
+		activeList:      -1,
+		activeListTitle: "",
 	}
 }
 
@@ -216,6 +218,7 @@ func ChecklistAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "l":
 			m.activeList = m.checklists[m.cursor].ID
+			m.activeListTitle = m.checklists[m.cursor].Title
 			items, _ := getItemsByChecklistId(m.db, m.activeList)
 			for i := 0; i < len(items); i++ {
 				m.choices[i] = items[i].Title
@@ -256,7 +259,7 @@ func (m model) View() string {
 }
 
 func ChecklistView(m model) string {
-	s := "My Checklists\n\n"
+	s := "\n  My Checklists\n\n"
 
 	for i, list := range m.checklists {
 		cursor := " "
@@ -281,7 +284,7 @@ func ChecklistView(m model) string {
 }
 
 func ChecklistDetailView(m model) string {
-	s := "Checklist detail\n\n"
+	s := fmt.Sprintf("\n  %s\n\n", m.activeListTitle)
 
 	for i, choice := range m.choices {
 		cursor := " "
