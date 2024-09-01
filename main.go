@@ -190,6 +190,17 @@ func ChecklistDetailAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.showInput {
 				m.showInput = false
 			}
+
+		case "h":
+			m.activeList = -1
+			lists, _ := getChecklists(m.db)
+			m.checklists = lists
+			for i := 0; i < len(lists); i++ {
+				m.choices[i] = lists[i].Title
+			}
+			m.layout = 1
+			m.cursor = 0
+
 		}
 	}
 
