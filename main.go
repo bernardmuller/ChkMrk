@@ -386,7 +386,6 @@ func FindItemInList(list []Item, index int) (Item, error) {
 }
 
 func initializeDB(db *sql.DB) error {
-	fmt.Println("Initializing DB...")
 	checklistsQuery := `
 	CREATE TABLE IF NOT EXISTS checklists (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -409,7 +408,6 @@ func initializeDB(db *sql.DB) error {
 	`
 	_, itemsErr := db.Exec(itemsQuery)
 
-	fmt.Println("DB done initialized.")
 	return itemsErr
 }
 
@@ -577,7 +575,6 @@ func main() {
 
 	checklists, err := getChecklists(db)
 	if len(checklists) == 0 {
-		fmt.Println("Seeding checklists...")
 		err := addChecklist(db, "My First Checklist")
 		if err != nil {
 			fmt.Printf("Error adding checklist: %s", err.Error())
@@ -586,7 +583,6 @@ func main() {
 
 	dbItems, err := getItems(db)
 	if len(dbItems) == 0 {
-		fmt.Println("Seeding DB...")
 		firstList, err := getChecklists(db)
 		if err != nil {
 			log.Printf("ERR: %s", err.Error())
