@@ -184,7 +184,7 @@ func ChecklistDetailAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor = 1
 			}
 
-		case "a":
+		case "n":
 			m.showInput = true
 
 		case "esc":
