@@ -212,7 +212,6 @@ func ChecklistAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.KeyMsg:
-
 		switch msg.String() {
 		case "l":
 			m.activeList = m.checklists[m.cursor].ID
@@ -224,6 +223,9 @@ func ChecklistAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 			m.layout = 2
+
+		case "ctrl+c", "q":
+			return m, tea.Quit
 
 		}
 	}
