@@ -6,7 +6,7 @@ import (
 	"errors"
 	"log"
 	"os"
-
+	"reflect"
 	// "flag"
 	"fmt"
 	"io"
@@ -98,47 +98,83 @@ func (m model) Init() tea.Cmd {
 	return textinput.Blink
 }
 
+func InputActionCallback(m *model, msg tea.Msg, cb interface{}, args ...interface{}) (result []reflect.Value, err error) {
+	callbackValue := reflect.ValueOf(cb)
+
+	if callbackValue.Kind() != reflect.Func {
+		return nil, fmt.Errorf("callback is not a function")
+	}
+
+	in := make([]reflect.Value, len(args))
+	for i, arg := range args {
+		in[i] = reflect.ValueOf(arg)
+	}
+
+	result = callbackValue.Call(in)
+	return result, nil
+}
+
+func HandleInputAction(m *model, msg tea.Msg, handler interface{}) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyCtrlC:
+			return m, tea.Quit
+
+		case tea.KeyEsc:
+			m.showInput = false
+			return m, nil
+
+		case tea.KeyEnter:
+			InputActionCallback(m, msg, handler, m)
+
+			m.textInput.Placeholder = ""
+			m.textInput.SetValue("")
+
+			m.showInput = false
+			return m, nil
+
+		}
+	case errMsg:
+		m.err = msg
+		return m, nil
+	}
+
+	m.textInput, cmd = m.textInput.Update(msg)
+	return m, cmd
+
+}
+
+func AddChecklistHandler(m *model) {
+	addChecklist(m.db, m.textInput.Value())
+	updatedList, _ := getChecklists(m.db)
+	m.checklists = updatedList
+	choices := make([]string, len(updatedList))
+	for i, item := range updatedList {
+		choices[i] = item.Title
+	}
+	m.choices = choices
+}
+
+func AddItemHandler(m *model) {
+	addItem(m.db, m.textInput.Value(), false, m.activeList)
+	updatedList, _ := getItems(m.db)
+	m.items = updatedList
+	choices := make([]string, len(updatedList))
+	for i, item := range updatedList {
+		choices[i] = item.Title
+	}
+	m.choices = choices
+}
+
 func ChecklistDetailAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 	if m.showInput {
-		var cmd tea.Cmd
-
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.Type {
-			case tea.KeyCtrlC:
-				return m, tea.Quit
-
-			case tea.KeyEsc:
-				m.showInput = false
-				return m, nil
-
-			case tea.KeyEnter:
-				addItem(m.db, m.textInput.Value(), false, m.activeList)
-				updatedList, _ := getItems(m.db)
-				m.items = updatedList
-				choices := make([]string, len(updatedList))
-				for i, item := range updatedList {
-					choices[i] = item.Title
-				}
-				m.choices = choices
-				m.textInput.Placeholder = ""
-				m.textInput.SetValue("")
-
-				m.showInput = false
-				return m, nil
-
-			}
-		case errMsg:
-			m.err = msg
-			return m, nil
-		}
-
-		m.textInput, cmd = m.textInput.Update(msg)
-		return m, cmd
-
+		return HandleInputAction(&m, msg, AddItemHandler)
 	}
-	switch msg := msg.(type) {
 
+	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 
@@ -211,9 +247,10 @@ func ChecklistDetailAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func ChecklistAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
-
+	if m.showInput {
+		return HandleInputAction(&m, msg, AddChecklistHandler)
+	}
 	switch msg := msg.(type) {
-
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "l":
@@ -233,6 +270,7 @@ func ChecklistAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "n":
 			m.showInput = true
+
 		}
 	}
 
