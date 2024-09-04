@@ -271,6 +271,16 @@ func ChecklistAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "n":
 			m.showInput = true
 
+		case "up", "k":
+			if m.cursor > 0 {
+				m.cursor--
+			}
+
+		case "down", "j":
+			if m.cursor < len(m.choices)-1 {
+				m.cursor++
+			}
+
 		}
 	}
 
