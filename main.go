@@ -234,9 +234,6 @@ func ChecklistDetailAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.activeList = -1
 			lists, _ := getChecklists(m.db)
 			m.checklists = lists
-			for i := 0; i < len(lists); i++ {
-				m.choices[i] = lists[i].Title
-			}
 			m.layout = 1
 			m.cursor = 0
 
@@ -257,12 +254,14 @@ func ChecklistAction(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.activeList = m.checklists[m.cursor].ID
 			m.activeListTitle = m.checklists[m.cursor].Title
 			items, _ := getItemsByChecklistId(m.db, m.activeList)
+			m.choices = make([]string, len(items))
 			for i := 0; i < len(items); i++ {
 				m.choices[i] = items[i].Title
 				if items[i].Completed {
 					m.selected[i] = items[i]
 				}
 			}
+			m.cursor = 0
 			m.layout = 2
 
 		case "ctrl+c", "q":
@@ -317,7 +316,7 @@ func ChecklistView(m model) string {
 			cursor = ">"
 		}
 
-		s += fmt.Sprintf("%s %d. %s\n", cursor, i+1, list.Title)
+		s += fmt.Sprintf("%s %d. %s\n", cursor, list.ID, list.Title)
 	}
 
 	if m.showInput {
